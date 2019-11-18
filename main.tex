@@ -2,6 +2,7 @@
 
 \usepackage{listings}
 \usepackage{color}
+\usepackage{tabularx}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
@@ -205,6 +206,22 @@ Pony has structural subtyping as same as Go\cite{go}.
 
 \section{Reference capability type system}
 Combining the actor-model with shared memory for performance is efficient but can introduce data-races. Well known approaches to static data-race freedom are based on uniqueness and immutability, but lack flexibility and high performance implementations. Pony's approach, based on deny properties allow reading, writing and traversing unique references, introduced a new form of write uniqueness, and guaranteed atomic behaviours.
+
+\subsection{Deny properties}
+Rather than indicate which operations are allowed on a reference, Pony's capabilities indicate what operations are denied on other references to the same object. It is distinguished what is denied to the actor that holds a reference(local aliases) from what is denied to all other actors(global aliases). Each capability stands for a pair of local and global deny properties.
+These are shown in table 1.
+
+\begin{table}[]
+\begin{tabularx}{\textwidth}{|X|X|X|X|}
+ \hline
+ & Deny global read/write aliases & Deny global write aliases & Allow all global aliases \\  \hline
+Deny local read/write aliases & \textit{Isolated(iso) }    &                           &                        \\  \hline
+Deny local write aliases      & Transition(\texttt{trn})                & \textit{Value(val)  }              &                        \\  \hline
+Allow all local aliases       & Reference(\texttt{ref})                 & Box(\texttt{box})                  & \textit{Tag(tag)  }             \\  \hline
+                              & (Mutable)                      & (Immutable)               & (Opaque)   \\ \hline           
+\end{tabularx}
+\caption{Capability matrix. }
+\end{table}
 
 
 
