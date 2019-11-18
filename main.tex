@@ -1,5 +1,33 @@
 \documentclass{article}
 
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ 
+  backgroundcolor=\color{white},  
+  basicstyle=\footnotesize,     
+  breakatwhitespace=false, 
+  breaklines=true,       
+  captionpos=b,   
+  commentstyle=\color{mygreen},  
+  frame=single,	     
+  keepspaces=true,
+  keywordstyle=\color{blue},      
+  language=Octave,                 
+  numbersep=5pt,               
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
 \title{Mid-term paper for Programming Theory}
 \author{Yushi Ogiwara}
 \date{\today}
@@ -26,9 +54,130 @@ Data-race Free. Pony doesn’t have locks nor atomic operations or anything like
 
 Deadlock-Free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don’t exist.
 
+\subsection{Compare to other languages}
 
+Compare to Elixir language \cite{elixir}, 
+
+Using actor, Elixir have to define module,
+\begin{lstlisting}[language=Erlang]{Make actor in Elixir}
+defmodule Actor1 do
+	def call() do
+		...
+	end	
+end	
+
+GenServer.start_link(Actor1, [:call])
+\end{lstlisting}
+And make actor by specifing module name, and method name.
+
+However in Pony, actor is primitive syntax, so you can make instance of actor as well as class.
+\begin{lstlisting}{Make actor in Pony}
+actor Actor1
+	be call() =>
+		...
+		
+let actor1 = Actor1		
+\end{lstlisting}
+
+Compare to Rust, Pony has much more stronger reference capability type system then Rust's borrow type system.
+
+\begin{lstlisting}{borrow system in Rust}
+let a = String::new("hello")
+let b = a
+// You can't use a at here anymore.
+\end{lstlisting}
+
+\begin{lstlisting}{consuming in Pony}
+let a : String iso = "hello"
+let b = consume a
+// You can't use a at here anymore.
+\end{lstlisting}
+
+
+Compare to Python, Pony uses Indentation as block as same as Python.
+
+
+\begin{lstlisting}[language=Python]{Python indentation}
+class A:
+	def b():
+		...
+\end{lstlisting}
+
+\begin{lstlisting}{Pony indentation}
+class A
+	fun b() =>
+		...
+\end{lstlisting}
+
+Compare to Ruby, Pony uses end~do style block as same as Ruby.
+
+\begin{lstlisting}[language=Ruby]{do-end block style both in Ruby and Pony }
+for i in values do
+	
+end		
+\end{lstlisting}
+
+Pony uses square brackets([T]) for type parameter, and functional style `apply` method as same as Scala.
+
+\begin{lstlisting}[language=Java]{Type parameter and apply method in Scala}
+interface A[T]{
+	def apply(i: T)
+}	
+
+val a: A[Int] = new A()
+a(8)
+\end{lstlisting}
+
+\begin{lstlisting}{Generics and apply method in Pony}
+interface A[T]
+	fun apply(i: T)
+	
+let a: A[Integer] = A
+a(8)	
+\end{lstlisting}
+
+Pony has structual subtyping as same as Go.
+
+\begin{lstlisting}{interface in Go}
+type geometry interface {
+    area() float64
+    perim() float64
+}
+
+type rect struct {
+    width, height float64
+}
+
+func (r rect) area() float64 {
+    return r.width * r.height
+}
+func (r rect) perim() float64 {
+    return 2*r.width + 2*r.height
+}
+// Now type rect implements geometry interface.
+
+\end{lstlisting}
+
+\begin{lstlisting}{interface in Pony}
+interface Animal
+	fun bark(): String
+	
+class Dog
+	fun bark(): String
+		=> "Bow!"	
+	
+// Now type Dog implements Animal interface.
+// You can annotate Dog implements Animal by 
+// class Dog is Animal
+\end{lstlisting}
+ 
 
 \section{Example Codes}
+
+\lstinputlisting{timer.pony}
+
+Here is timer program in pony, which at first sleeps for 5 seconds, after the repeat to run method every 2 seconds.
+
 
 \section{Type proof theory}
 
@@ -40,6 +189,31 @@ Pony language official page
 \bibitem{type-proof-paper}
 Deny Capabilities for Safe, Fast Actors
 \\\texttt{https://www.ponylang.io/media/papers/fast-cheap-with-proof.pdf}
+
+\bibitem{elixir}
+Elixir language official page
+\\\texttt{https://elixir-lang.org}
+
+\bibitem{rust}
+Rust language official page
+\\\texttt{https://www.rust-lang.org}
+
+\bibitem{python}
+Python language official page
+\\\texttt{https://www.python.org}
+
+\bibitem{ruby}
+Ruby language official page
+\\\texttt{https://www.ruby-lang.org/en/}
+	
+\bibitem{scala}
+Scala language official page
+\\\texttt{https://www.scala-lang.org}
+
+\bibitem{go}
+Go language official page
+\\\texttt{https://golang.org}
+	
 	
 \end{thebibliography}
 
