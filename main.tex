@@ -28,8 +28,8 @@
   title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
 }
 
-\title{Mid-term paper for Programming Theory}
-\author{Yushi Ogiwara}
+\title{Mid-term paper for Programming Theory class}
+\author{Ogiwara}
 \date{\today}
 \begin{document}
 
@@ -37,16 +37,16 @@
 
 \section{Objective}
 Pick one programming language, and explain about that.
-At here, I'll explain about Pony language \cite{ponylang} through description of features and performance, sample codes, and type proof theory.
+At here, I'll explain about Pony language \cite{ponylang} through description of features and performance, sample codes, and reference capability type system, which is the key concept of this language.
 
 
 \section{Features and Performance}
-\subsection{Simple description from official page \cite{ponylang}}
+\subsection{Simple introduction from official page \cite{ponylang}}
 Pony is an open-source, object-oriented, actor-model, capabilities-secure, high-performance programming language. \\
 
-Pony is type safe. Really type safe. On top page, there’s a link for mathematical proof paper \cite{type-proof-paper}. I’ll explain about that later section. \\
+Pony is type safe. Really type safe. On top page, there is a link for mathematical proof paper \cite{type-proof-paper}. I will explain about that in later section. \\
 
-Pony is memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of null. \\
+Pony is memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of \texttt{null}. \\
 
 Exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. \\
 
@@ -54,11 +54,31 @@ Data-race Free. Pony doesn’t have locks nor atomic operations or anything like
 
 Deadlock-Free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don’t exist.
 
+\subsection{Example Codes}
+
+\lstinputlisting{timer.pony}
+
+Here is timer program in Pony.
+At first sleeps for 5 seconds, and after that, repeat to run Notify.apply method in every 2 seconds.
+
+There are \texttt{Main} actor and \texttt{Notify} class. 
+\texttt{Main} actor has \texttt{new create} symbol, which works as constructor.
+\texttt{Notify} class has \texttt{ \_env}, \texttt{ \_counter} fields, \texttt{create} constructor, and \texttt{apply} method.
+
+First, \texttt{Main} actor ' \texttt{create} constructor is called. It is initial function as same as \texttt{int main()} in C or \texttt{public static void main(String[] args)} in Java. 
+
+Values are assigned into \texttt{timers} and \texttt{timer}, and then \texttt{Timers.apply} method is called. 
+At here, \texttt{Timers} is another actor, so we have to move \texttt{timer} data to the actor by \texttt{consume} expression.
+
+ \texttt{Timers} actor calls passed object(At here \texttt{Notify})'s apply method repeatedly (At here sleeps for 5 seconds run every 2 seconds). 
+ 
+\texttt{Notify.apply} outputs current \texttt{\_counter}, and then increment it.
+
+
+
+
 \subsection{Compare to other languages}
 
-Compare to Elixir language \cite{elixir}, 
-
-Using actor, Elixir have to define module,
 \begin{lstlisting}[language=Erlang]{Make actor in Elixir}
 defmodule Actor1 do
 	def call() do
@@ -68,9 +88,9 @@ end
 
 GenServer.start_link(Actor1, [:call])
 \end{lstlisting}
-And make actor by specifing module name, and method name.
 
-However in Pony, actor is primitive syntax, so you can make instance of actor as well as class.
+To use actor, Elixir\cite{elixir} have to define module, and make actor by specifying both module name and method name.
+
 \begin{lstlisting}{Make actor in Pony}
 actor Actor1
 	be call() =>
@@ -79,9 +99,11 @@ actor Actor1
 let actor1 = Actor1		
 \end{lstlisting}
 
-Compare to Rust, Pony has much more stronger reference capability type system then Rust's borrow type system.
+However in Pony, \texttt{actor} is primitive syntax, so you can just make instance of actor as same as classes. \\
 
-\begin{lstlisting}{borrow system in Rust}
+
+
+\begin{lstlisting}{ownership system in Rust}
 let a = String::new("hello")
 let b = a
 // You can't use a at here anymore.
@@ -93,8 +115,13 @@ let b = consume a
 // You can't use a at here anymore.
 \end{lstlisting}
 
+Pony has much more stronger reference capability type system than Rust \cite{rust} 's ownership type system. 
 
-Compare to Python, Pony uses Indentation as block as same as Python.
+At here, \texttt{iso} is one of reference capability types, which mean "this value is readable in writable in one actor, and it can move to another actor".
+
+About reference capability, I will explain about it in later section.
+\\
+
 
 
 \begin{lstlisting}[language=Python]{Python indentation}
@@ -109,15 +136,17 @@ class A
 		...
 \end{lstlisting}
 
-Compare to Ruby, Pony uses end~do style block as same as Ruby.
 
-\begin{lstlisting}[language=Ruby]{do-end block style both in Ruby and Pony }
+Pony uses indentation as block as same as Python\cite{python}.\\
+
+\begin{lstlisting}[language=Ruby]{do end block style both in Ruby and Pony }
 for i in values do
 	
 end		
 \end{lstlisting}
 
-Pony uses square brackets([T]) for type parameter, and functional style `apply` method as same as Scala.
+ Pony uses do$\sim$end style block as same as Ruby \cite{ruby}. \\
+
 
 \begin{lstlisting}[language=Java]{Type parameter and apply method in Scala}
 interface A[T]{
@@ -136,7 +165,8 @@ let a: A[Integer] = A
 a(8)	
 \end{lstlisting}
 
-Pony has structual subtyping as same as Go.
+Pony uses square brackets([T]) for Generics, and functional style \texttt{apply} method as same as Scala\cite{scala}. \\
+
 
 \begin{lstlisting}{interface in Go}
 type geometry interface {
@@ -171,15 +201,12 @@ class Dog
 // class Dog is Animal
 \end{lstlisting}
  
+Pony has structural subtyping as same as Go\cite{go}.
 
-\section{Example Codes}
-
-\lstinputlisting{timer.pony}
-
-Here is timer program in pony, which at first sleeps for 5 seconds, after the repeat to run method every 2 seconds.
+\section{Reference capability type system}
+Combining the actor-model with shared memory for performance is efficient but can introduce data-races. Well known approaches to static data-race freedom are based on uniqueness and immutability, but lack flexibility and high performance implementations. Pony's approach, based on deny properties allow reading, writing and traversing unique references, introduced a new form of write uniqueness, and guaranteed atomic behaviours.
 
 
-\section{Type proof theory}
 
 \begin{thebibliography}{9}
 \bibitem{ponylang}
