@@ -1,5 +1,46 @@
-\documentclass[11pt]{report}
+\documentclass{article}
 
+\title{Mid-term paper for Programming Theory}
+\author{Yushi Ogiwara}
+\date{\today}
 \begin{document}
+
+\maketitle
+
+\section{Objective}
+Pick one programming language, and explain about that.
+At here, I'll explain about Pony language \cite{ponylang} through description of features and performance, sample codes, and type proof theory.
+
+
+\section{Features and Performance}
+\subsection{Simple description from official page \cite{ponylang}}
+Pony is an open-source, object-oriented, actor-model, capabilities-secure, high-performance programming language. \\
+
+Pony is type safe. Really type safe. On top page, there’s a link for mathematical proof paper \cite{type-proof-paper}. I’ll explain about that later section. \\
+
+Pony is memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of null. \\
+
+Exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. \\
+
+Data-race Free. Pony doesn’t have locks nor atomic operations or anything like that. Instead, the type system ensures at compile time that your concurrent program can never have data races. So you can write highly concurrent code and never get it wrong. \\
+
+Deadlock-Free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don’t exist.
+
+
+
+\section{Example Codes}
+
+\section{Type proof theory}
+
+\begin{thebibliography}{9}
+\bibitem{ponylang}
+Pony language official page
+\\\texttt{https://www.ponylang.io}
+
+\bibitem{type-proof-paper}
+Deny Capabilities for Safe, Fast Actors
+\\\texttt{https://www.ponylang.io/media/papers/fast-cheap-with-proof.pdf}
+	
+\end{thebibliography}
 
 \end{document}
