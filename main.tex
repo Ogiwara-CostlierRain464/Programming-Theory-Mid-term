@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage[margin={1.5cm,1.5cm}]{geometry}
 
 \usepackage{listings}
 \usepackage{color}
@@ -6,10 +7,17 @@
 \usepackage{pdfrender}
 \usepackage{amssymb}
 \usepackage{bussproofs}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{hyperref}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\def \extends{$<:$}
+\setlength{\columnsep}{1cm}
 
 \lstset{ 
   backgroundcolor=\color{white},  
@@ -36,29 +44,33 @@
 \author{Ogiwara}
 \date{\today}
 \begin{document}
-
+\begin{multicols}{2}
+[
 \maketitle
-
+]
 \section{Objective}
 Pick one programming language, and explain about that.
 At here, I'll explain about Pony language \cite{ponylang} through description of features and performance, sample codes, and reference capability type system, which is the key concept of this language.
 
+\subsection{Why I chose Pony}
+This is really boring reason. I just seek "200 minor programming language list"\cite{200}, and I found this.  
 
 \section{Features and Performance}
+
 \subsection{Simple introduction from official page \cite{ponylang}}
-Pony is an open-source, object-oriented, actor-model, capabilities-secure, high-performance programming language. \\
+Pony is an open-source, object-oriented, actor-model, capabilities-secure, high-performance programming language. 
 
-Pony is type safe. Really type safe. On top page, there is a link for mathematical proof paper \cite{type-proof-paper}. I will explain about that in later section. \\
+Type safe. Really type safe. On top page, there is a link for mathematical proof paper \cite{type-proof-paper}. I will explain about that in later section.
 
-Pony is memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of \texttt{null}. \\
+Memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of \texttt{null}. 
 
-Exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. \\
+Exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. 
 
-Data-race Free. Pony doesn’t have locks nor atomic operations or anything like that. Instead, the type system ensures at compile time that your concurrent program can never have data races. So you can write highly concurrent code and never get it wrong. \\
+Data-race Free. Pony doesn’t have locks nor atomic operations or anything like that. Instead, the type system ensures at compile time that your concurrent program can never have data races. So you can write highly concurrent code and never get it wrong. 
 
 Deadlock-Free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don’t exist.
 
-\subsection{Example Codes}
+\subsection{Example Code}
 
 \lstinputlisting{timer.pony}
 
@@ -104,6 +116,8 @@ let actor1 = Actor1
 \end{lstlisting}
 
 However in Pony, \texttt{actor} is primitive syntax, so you can just make instance of actor as same as classes. \\
+
+
 
 
 
@@ -153,8 +167,8 @@ end
 
 
 \begin{lstlisting}[language=Java]{Type parameter and apply method in Scala}
-interface A[T]{
-	def apply(i: T)
+class A[T]{
+	def apply(i: T){}
 }	
 
 val a: A[Int] = new A()
@@ -162,8 +176,9 @@ a(8)
 \end{lstlisting}
 
 \begin{lstlisting}{Generics and apply method in Pony}
-interface A[T]
-	fun apply(i: T)
+class A[T]
+	fun apply(i: T) =>
+		...
 	
 let a: A[Integer] = A
 a(8)	
@@ -207,6 +222,48 @@ class Dog
  
 Pony has structural subtyping as same as Go\cite{go}.
 
+
+\begin{table*}[]
+\centering
+\begin{tabular}{lllll}
+\hline
+                          & Pony & Scala & Elixir & Rust \\ \hline \hline
+Zero-Copy                 & $\checkmark$ & $\checkmark$& &  $\checkmark$    \\ \hline
+Data-race free            & $\checkmark$ &       & $\checkmark$& $\checkmark$ \\ \hline
+Statically data-race free & $\checkmark$ &       &        &      \\ \hline
+Read unique (iso)         & $\checkmark$&       &        &      \\ \hline
+Write unique (trn)        & $\checkmark$&       &        &      \\ \hline
+Mutability (ref)          &$\checkmark$ &$\checkmark$ &        &$\checkmark$ \\ \hline
+Immutability (val)        &$\checkmark$&       & $\checkmark$& $\checkmark$\\ \hline
+Identity (tag)            &$\checkmark$&       &        &      \\ \hline
+Actors                    &$\checkmark$& $\checkmark$ & $\checkmark$&      \\ \hline
+Formal proof              &$\checkmark$&       &        &      \\ \hline
+\end{tabular}
+\caption{Feature comparison.\cite{type-proof-paper}}
+\end{table*}
+
+Table 1 is summary of some parallarel features of Pony and compare with Scala, Elixir, and Rust.
+
+\subsection{Performance}
+
+
+\begin{figure*}
+\centering 		\includegraphics[width=0.6\textwidth]{a}
+\caption{Actor creation, where **** is Pony. \cite{type-proof-paper}}
+\end{figure*}
+
+
+
+\begin{figure*}
+\centering 		\includegraphics[width=0.6\textwidth]{b}
+\caption{Mailbox performance, where **** is Pony. \cite{type-proof-paper}}
+\end{figure*}
+
+
+Figure 1 and Figure 2 is performance comparison graph with Erlang, Scala, CAF, Charm++, and Pony from the paper\cite{type-proof-paper}.
+Figure 1 shows actor creation performance, and figure 2 shows mailbox performance.
+
+
 \section{Reference capability type system}
 Combining the actor-model with shared memory for performance is efficient but can introduce data-races. Well known approaches to static data-race freedom are based on uniqueness and immutability, but lack flexibility and high performance implementations. Pony's approach, based on deny properties allow reading, writing and traversing unique references, introduced a new form of write uniqueness, and guaranteed atomic behaviours.
 
@@ -230,39 +287,54 @@ Because \texttt{iso} has read and write uniqueness, it can send the value to oth
 
 \texttt{box} is for references to data that is read-only to you. That data might be immutable and shared with other actors or there may be other variables using it in your actor that can change the data. Either way, the box variable can be used to safely read the data. This may sound a little pointless, but it allows you to write code that can work for both val and ref variables, as long as it doesn’t write to the object.\\
 
-\texttt{trn} has write uniqueness, and is used for data structures that you want to write to, while also holding read-only (box) variables for them. You can also convert the \texttt{trn} variable to a \texttt{val} variable later if you wish, which stops anyone from changing the data and allows it be shared with other actors.
+\texttt{trn} has write uniqueness, and is used for data structures that you want to write to, while also holding read-only (box) variables for them. You can also convert the \texttt{trn} variable to a \texttt{val} variable later if you wish, which stops anyone from changing the data and allows it be shared with other actors. \\
 
 \texttt{tag} is for references used only for identification. You cannot read or write data using a tag variable. But you can store and compare tags to check object identity and share(Sendable) \texttt{tag} variables with other actors.
 
 \subsection{Type system}
 By including reference capabilities to its type system, Pony finds all the errors at compile time, and guarantees no runtime error.
 
-\begin{itemize}
-	\item
-	 $\mathcal{A}(\texttt{S} \kappa \circ) = \texttt{S} \kappa$
-	 
-	\item 
-	$ 
-	i just gave up to write about aliasing!
-	$ 
+\begin{figure*}
+\centering
 	
-\end{itemize}
+\AxiomC{T$<$:T''}
+\AxiomC{T''$<$:T'}
+\BinaryInfC{T $<$: T'}
+\DisplayProof 
 
-\begin{prooftree}
-	\AxiomC{ET $ <:$ }
-\UnaryInfC{B}
-\AxiomC{C}
-\BinaryInfC{D}
-\AxiomC{E}
-\AxiomC{F}
-\BinaryInfC{G}
-\UnaryInfC{H}
-\BinaryInfC{J}
-\end{prooftree}
+\proofSkipAmount
+
+\AxiomC{}
+\UnaryInfC{S $\kappa \circ <:$ S $\kappa$ }
+\DisplayProof
+
+\proofSkipAmount
+
+\AxiomC{$\kappa <: \kappa'$}
+\UnaryInfC{S $\kappa <:$ S $\kappa'$ }
+\DisplayProof
+
+\proofSkipAmount
+
+\texttt{iso} \extends \texttt{trn} \extends \{\texttt{ref},\texttt{val}\} \extends \texttt{box} \extends \texttt{tag} 
+
+\proofSkipAmount
+
+\textit{Schedule}(T) \textit{iff} T = S $\kappa \land \kappa \in $ \{ \texttt{iso},\texttt{val},\texttt{tag} \}	
+
+\proofSkipAmount
+\caption{Sub-types and sendable types \cite{type-proof-paper}}
+\end{figure*}
+
+Subtyping relationship of reference capabilities are shown in fig 1. At here, $\kappa$ is reference capability, $\circ$ is temporary type, \extends is showing that left-side type is subtype of right-side type. 
+
+When reading a field \texttt{f} ftom an object $\iota$ we obtain a temporary. The capability of this temporary must be a combination of $\kappa$, the capability of the path leading to $\iota$, and $\kappa'$, then capability with which $\iota$ sees the field. Pony express this through the operator $\triangleright$, defined in table 2.
 
 
-%write for sub typing and viewpoint adaption and finally the theorem%
+Storing a reference into a field of an object $\iota$ is legal if the type of the reference is both a subtype of the type of the field and also safe to write into the origin. The relation $\kappa \triangleleft \kappa'$, as defined in table 3. \\
 
+
+Through applying subtyping rule and viewpoint adaption to reference capability, type proof theory guarantees that well-formed heap ensures data race freedom, and it is preserved.
 
 \newtheorem{theorem}{Theorem}
 \begin{theorem}
@@ -285,14 +357,10 @@ By including reference capabilities to its type system, Pony finds all the error
 	$\forall \Delta, \chi, if \Delta \vdash \chi \Diamond and \chi \rightarrow \chi' then  \exists \Delta'.\Delta' \vdash \chi'\Diamond$
 \end{theorem}
 
+Proof of these theorems are written in paper \cite{type-proof-paper}.
 
 
-% description for each cap
-% chaining table
-% finally 2 theorems are given.
-% don't forget for showing performance!
-
-\begin{table}[]
+\begin{table*}[]
 \begin{tabularx}{\textwidth}{|X|X|X|X|}
  \hline
  & Deny global read/write aliases & Deny global write aliases & Allow all global aliases \\  \hline
@@ -302,9 +370,9 @@ Allow all local aliases       & Reference(\texttt{ref})                 & Box(\t
                               & (Mutable)                      & (Immutable)               & (Opaque)   \\ \hline           
 \end{tabularx}
 \caption{Capability matrix. Capabilities in \textit{italics} are sendable.\cite{type-proof-paper} }
-\end{table}
+\end{table*}
 
-\begin{table}[]
+\begin{table*}[]
 \centering
 \begin{tabular}{lllllll}
 \hline
@@ -318,10 +386,10 @@ box               & tag & box & box & val & box & tag \\ \hline
 tag               &  $\bot$ & $\bot$ & $\bot$ & $\bot$ & $\bot$ &     \\ \hline
 \end{tabular}
 \caption{Viewpoint adaption.\cite{type-proof-paper}}
-\end{table}
+\end{table*}
 
 
-\begin{table}[]
+\begin{table*}[]
 \centering
 \begin{tabular}{lllllll}
 \hline
@@ -335,7 +403,9 @@ box               &  &  &  &  &  &  \\ \hline
 tag               &   &  &  &  &  &     \\ \hline
 \end{tabular}
 \caption{Safe to write.\cite{type-proof-paper}}
-\end{table}
+\end{table*}
+
+
 
 
 \begin{thebibliography}{9}
@@ -371,7 +441,11 @@ Scala language official page
 Go language official page
 \\\texttt{https://golang.org}
 	
-	
-\end{thebibliography}
 
+\bibitem{200}
+200 minor programming language
+\\\texttt{ \url{https://qiita.com/make_now_just/items/b2ab19f954417c71848d} }
+
+\end{thebibliography}
+\end{multicols}
 \end{document}
