@@ -18,6 +18,7 @@
 
 \def \extends{$<:$}
 \setlength{\columnsep}{1cm}
+\def\proofSkipAmount{\hskip.12pt}
 
 \lstset{ 
   backgroundcolor=\color{white},  
@@ -137,6 +138,18 @@ Pony has much more stronger reference capability system than Rust's ownership sy
 
 At here, \texttt{iso} is one of reference capability types, which mean "this value is readable and writable in one actor, and it can move to another actor".
 
+\texttt{iso} has \textit{read and write uniqueness}, which means only single variable can bind its reference, and you have no way to read and write data without using the varibale.
+
+\begin{lstlisting}{read and write uniqueness}
+let a = "not iso"
+let b = a // Aliasing
+
+let c: String iso = "iso"
+let d = c // error! iso has read and write uniqueness, so it cannot make alias.
+let e = consume c // it works. move reference to left-hand variable. 
+\end{lstlisting}
+At here, \texttt{b} has copied reference from \texttt{a}, which is called \textit{aliasing} in Pony. However if a variable have some \textit{uniqueness}, you cannot make alias.
+
 About reference capability, I will explain about it in later section.
 \\
 
@@ -240,39 +253,39 @@ Actors                    &$\checkmark$& $\checkmark$ & $\checkmark$&      \\ \h
 Formal proof              &$\checkmark$&       &        &      \\ \hline
 Concurrent GC          & &       &   $\checkmark$     &      \\ \hline
 \end{tabular}
-\caption{Feature comparison.\cite{type-proof-paper}}
+\caption{Feature comparison table from\cite{type-proof-paper}.}
 \end{table*}
 
 
 About parallel processing programming, Pony has variety of variable types and strong type system for actor model.
-Table 1 is summary of some parallel processing programming features of Pony and compare with Scala, Elixir, and Rust.
+Table 1 is summary of some parallel processing programming features of Pony and compare with Scala(Akka streams\cite{akka-streams}), Elixir, and Rust.
 
 \subsection{Performance}
 
 
 \begin{figure*}
 \centering 		\includegraphics[width=0.6\textwidth]{a}
-\caption{Actor creation, where **** is Pony. \cite{type-proof-paper}}
+\caption{Actor creation, where **** is Pony(from\cite{type-proof-paper}).}
 \end{figure*}
 
 
 
 \begin{figure*}
 \centering 		\includegraphics[width=0.6\textwidth]{b}
-\caption{Mailbox performance, where **** is Pony. \cite{type-proof-paper}}
+\caption{Mailbox performance, where **** is Pony(from\cite{type-proof-paper}).}
 \end{figure*}
 
 
-Figure 1 and Figure 2 is performance comparison graph with Erlang, Scala, CAF, Charm++, and Pony from the paper\cite{type-proof-paper}.
+Figure 1 and Figure 2 are actor performance comparison graph with Erlang, Scala, CAF\cite{caf}, Charm++, and Pony (These graphs are from the paper\cite{type-proof-paper}).
 Figure 1 shows actor creation performance, and figure 2 shows mailbox performance.
 
 
 \section{Reference capability type system}
-Combining the actor-model with shared memory for performance is efficient but can introduce data-races. Well known approaches to static data-race freedom are based on uniqueness and immutability, but lack flexibility and high performance implementations. Pony's approach, based on deny properties allow reading, writing and traversing unique references, introduced a new form of write uniqueness, and guaranteed atomic behaviours.
+Combining the actor-model with shared memory for performance is efficient but can introduce data-races. Well known approaches to static data-race freedom are based on uniqueness and immutability, but lack flexibility and high performance implementations. Pony's approach, based on deny properties allow reading, writing and traversing unique references, introduced a new form of write uniqueness, and guaranteed atomic behaviors.
 
 \subsection{Deny properties}
 Rather than indicate which operations are allowed on a reference, Pony's capabilities indicate what operations are denied on other references to the same object. It is distinguished what is denied to the actor that holds a reference(local aliases) from what is denied to all other actors(global aliases). Each capability stands for a pair of local and global deny properties.
-These are shown in table 1\cite{type-proof-paper}, and we call it "Reference capability matrix". For example, \texttt{ref} denies global aliases that can read from or write to the object, but it allows local aliases to both read from and write to it.
+These are shown in table 2, and we call it "Reference capability matrix". For example, \texttt{ref} denies global aliases that can read from or write to the object, but it allows local aliases to both read from and write to it.
 
 No capability can deny local aliases that it allows globally.  Therefore, some cells in the matrix are empty.
 These deny properties are used to derive the operations permitted on a reference, and determine the ability of each capability references. \\
@@ -286,9 +299,9 @@ Because \texttt{iso} has read and write uniqueness, it can send the value to oth
 \texttt{val} is for references to immutable data structures. If you have a val variable then you know that no-one can change the data. So it is \textit{Sendable}, and you can read it and share it with other actors.\\
 
 
-\texttt{ref}  is for references to mutable data structures that are not isolated, in other words, “normal” data. If you have a \texttt{ref} variable then you can read and write the data however you like and you can have multiple variables that can access the same data. But you can’t share it with other actors.\\
+\texttt{ref} is for references to mutable data structures that are not isolated, in other words, "normal" data. If you have a \texttt{ref} variable then you can read and write the data however you like and you can have multiple variables that can access the same data. But you can't share it with other actors.\\
 
-\texttt{box} is for references to data that is read-only to you. That data might be immutable and shared with other actors or there may be other variables using it in your actor that can change the data. Either way, the box variable can be used to safely read the data. This may sound a little pointless, but it allows you to write code that can work for both val and ref variables, as long as it doesn’t write to the object.\\
+\texttt{box} is for references to data that is read-only to you. That data might be immutable and shared with other actors or there may be other variables using it in your actor that can change the data. Either way, the box variable can be used to safely read the data. This may sound a little pointless, but it allows you to write code that can work for both val and ref variables, as long as it doesn't write to the object.\\
 
 \texttt{trn} has write uniqueness, and is used for data structures that you want to write to, while also holding read-only (box) variables for them. You can also convert the \texttt{trn} variable to a \texttt{val} variable later if you wish, which stops anyone from changing the data and allows it be shared with other actors. \\
 
@@ -318,6 +331,7 @@ By including reference capabilities to its type system, Pony finds all the error
 \DisplayProof
 
 \proofSkipAmount
+\proofSkipAmount
 
 \texttt{iso} \extends \texttt{trn} \extends \{\texttt{ref},\texttt{val}\} \extends \texttt{box} \extends \texttt{tag} 
 
@@ -326,15 +340,15 @@ By including reference capabilities to its type system, Pony finds all the error
 \textit{Schedule}(T) \textit{iff} T = S $\kappa \land \kappa \in $ \{ \texttt{iso},\texttt{val},\texttt{tag} \}	
 
 \proofSkipAmount
-\caption{Sub-types and sendable types \cite{type-proof-paper}}
+\caption{Sub-types and sendable types (from\cite{type-proof-paper}).}
 \end{figure*}
 
-Subtyping relationship of reference capabilities are shown in fig 1. At here, $\kappa$ is reference capability, $\circ$ is temporary type, \extends is showing that left-side type is subtype of right-side type. 
+Subtyping relationship of reference capabilities are shown in fig 3. At here, $\kappa$ is reference capability, $\circ$ is temporary type, \extends is showing that left-side type is subtype of right-side type. 
 
-When reading a field \texttt{f} ftom an object $\iota$ we obtain a temporary. The capability of this temporary must be a combination of $\kappa$, the capability of the path leading to $\iota$, and $\kappa'$, then capability with which $\iota$ sees the field. Pony express this through the operator $\triangleright$, defined in table 2.
+When reading a field \texttt{f} ftom an object $\iota$ we obtain a temporary. The capability of this temporary must be a combination of $\kappa$, the capability of the path leading to $\iota$, and $\kappa'$, then capability with which $\iota$ sees the field. Pony express this through the operator $\triangleright$, defined in table 3.
 
 
-Storing a reference into a field of an object $\iota$ is legal if the type of the reference is both a subtype of the type of the field and also safe to write into the origin. The relation $\kappa \triangleleft \kappa'$, as defined in table 3. \\
+Storing a reference into a field of an object $\iota$ is legal if the type of the reference is both a subtype of the type of the field and also safe to write into the origin. The relation $\kappa \triangleleft \kappa'$, as defined in table 4. \\
 
 
 Through applying subtyping rule and viewpoint adaption to reference capability, type proof theory guarantees that well-formed heap ensures data race freedom, and it is preserved.
@@ -372,7 +386,7 @@ Deny local write aliases      & Transition(\texttt{trn})                & \texti
 Allow all local aliases       & Reference(\texttt{ref})                 & Box(\texttt{box})                  & \textit{Tag(tag)  }             \\  \hline
                               & (Mutable)                      & (Immutable)               & (Opaque)   \\ \hline           
 \end{tabularx}
-\caption{Capability matrix. Capabilities in \textit{italics} are sendable.\cite{type-proof-paper} }
+\caption{Capability matrix from\cite{type-proof-paper}. Capabilities in \textit{italics} are sendable.}
 \end{table*}
 
 \begin{table*}[]
@@ -388,7 +402,7 @@ val               & val & val & val & val & val & tag \\ \hline
 box               & tag & box & box & val & box & tag \\ \hline
 tag               &  $\bot$ & $\bot$ & $\bot$ & $\bot$ & $\bot$ &     \\ \hline
 \end{tabular}
-\caption{Viewpoint adaption.\cite{type-proof-paper}}
+\caption{Viewpoint adaption from\cite{type-proof-paper}.}
 \end{table*}
 
 
@@ -405,7 +419,7 @@ val               &  &  &  &  &  &  \\ \hline
 box               &  &  &  &  &  &  \\ \hline
 tag               &   &  &  &  &  &     \\ \hline
 \end{tabular}
-\caption{Safe to write.\cite{type-proof-paper}}
+\caption{Safe to write table from\cite{type-proof-paper}.}
 \end{table*}
 
 
@@ -423,6 +437,13 @@ Deny Capabilities for Safe, Fast Actors
 \bibitem{200}
 200 minor programming language
 \\\texttt{ \url{https://qiita.com/make_now_just/items/b2ab19f954417c71848d} }
+
+\bibitem{akka-streams}
+Akka Streams
+\\\texttt{ \url{https://doc.akka.io/docs/akka/current/stream/index.html} }
+
+\bibitem{caf}
+D. Charousset, T. C. Schmidt, R. Hiesgen, and M. Wahlisch. Native actors: a scalable software platform for distributed, heterogeneous environments. In Proceedings of the 2013 work shop on Programming based on actors, agents, and decentralized control, pages 87–96. ACM, 2013.
 
 \end{thebibliography}
 \end{multicols}
