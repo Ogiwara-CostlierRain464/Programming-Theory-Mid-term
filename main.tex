@@ -148,7 +148,7 @@ let c: String iso = "iso"
 let d = c // error! iso has read and write uniqueness, so it cannot make alias.
 let e = consume c // it works. move reference to left-hand variable. 
 \end{lstlisting}
-At here, \texttt{b} has copied reference from \texttt{a}, which is called \textit{aliasing} in Pony. However if a variable have some \textit{uniqueness}, you cannot make alias.
+At here, \texttt{b} has copied reference from \texttt{a}, which is called \textit{aliasing} in Pony. However if a variable have some \textit{uniqueness}, you cannot make alias. \texttt{consume c} has \texttt{String iso\^} type. \texttt{\^} symbol means \textit{ephemeral type} or \textit{temporary type}, which is for a value that has no name.
 
 About reference capability, I will explain about it in later section.
 \\
@@ -343,15 +343,15 @@ By including reference capabilities to its type system, Pony finds all the error
 \caption{Sub-types and sendable types (from\cite{type-proof-paper}).}
 \end{figure*}
 
-Subtyping relationship of reference capabilities are shown in fig 3. At here, $\kappa$ is reference capability, $\circ$ is temporary type, \extends is showing that left-side type is subtype of right-side type. 
+Subtyping relationship of reference capabilities are shown in fig 3. At here, $\kappa$ is reference capability, $\circ$ is ephemeral type, \extends is showing that left-side type is subtype of right-side type.
 
-When reading a field \texttt{f} ftom an object $\iota$ we obtain a temporary. The capability of this temporary must be a combination of $\kappa$, the capability of the path leading to $\iota$, and $\kappa'$, then capability with which $\iota$ sees the field. Pony express this through the operator $\triangleright$, defined in table 3.
+When reading a field \texttt{f} from an object $\iota$ we obtain a temporary. The capability of this temporary must be a combination of $\kappa$, the capability of the path leading to $\iota$, and $\kappa'$, then capability with which $\iota$ sees the field. Pony express this through the operator $\triangleright$, defined in table 3.
 
 
 Storing a reference into a field of an object $\iota$ is legal if the type of the reference is both a subtype of the type of the field and also safe to write into the origin. The relation $\kappa \triangleleft \kappa'$, as defined in table 4. \\
 
 
-Through applying subtyping rule and viewpoint adaption to reference capability, type proof theory guarantees that well-formed heap ensures data race freedom, and it is preserved.
+Through applying subtyping rule and viewpoint adaption to reference capability, type proof theory guarantees that well-formed(which means made based on Pony type system.) heap ensures data race freedom, and it is preserved.
 
 \newtheorem{theorem}{Theorem}
 \begin{theorem}
@@ -360,21 +360,26 @@ Through applying subtyping rule and viewpoint adaption to reference capability, 
 	$\forall \Delta,\chi,\alpha_1,\alpha_2,\texttt{f,g},$ if
 	
 	\begin{enumerate}
-		\item $\Delta \vdash \chi \Diamond,$ and
-		\item $\chi(\alpha_1) = (\_,\_,\sigma_1, \_,  E_1[z_1.\texttt{f} = z_3])$, and
+		\item $\Delta \vdash \chi \Diamond, \land$ 
+		\item $\chi(\alpha_1) = (\_,\_,\sigma_1, \_,  E_1[z_1.\texttt{f} = z_3]), \land$ 
 		\item $\chi(\alpha_2) = (\_,\_,\sigma_2, \_,  E_2[z_2.\texttt{g}])$
 	\end{enumerate} 
 	
-	then $\chi(\alpha_1, |\sigma_1|\cdot z_1) \neq \chi(\alpha_2, |\sigma_2| \cdot z_2)$
+	 $\Rightarrow \chi(\alpha_1, |\sigma_1|\cdot z_1) \neq \chi(\alpha_2, |\sigma_2| \cdot z_2)$
 \end{theorem}
 
 \begin{theorem} 
 	Well-formedness is preserved.
 	
-	$\forall \Delta, \chi, if \Delta \vdash \chi \Diamond and \chi \rightarrow \chi' then  \exists \Delta'.\Delta' \vdash \chi'\Diamond$
+	$\forall \Delta, \chi,$ if
+	
+	 $\Delta \vdash \chi \Diamond \land \chi \rightarrow \chi' \Rightarrow  \exists \Delta'.\Delta' \vdash \chi'\Diamond$
 \end{theorem}
 
-Proof of these theorems are written in paper \cite{type-proof-paper}.
+At here, $\Delta$ is global variable environment, $\chi$ is Heap, $\alpha$ is actor address, \texttt{f,g} are fields, $\Diamond$ is symbol of "well-formed", and $\sigma$ is stack. 
+Theorem 1 says when stack is well-formed, it cannot be happening that referencing same object from different actors at once. Theorem 2 says when well-formed stack has next state, also that must be well-formed.
+
+Proof of these theorems are written in the paper \cite{type-proof-paper}.
 
 
 \begin{table*}[]
