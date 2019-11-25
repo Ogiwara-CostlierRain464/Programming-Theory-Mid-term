@@ -50,7 +50,7 @@
 ]
 \section{Objective}
 Pick one programming language, and explain about that.
-At here, I'll explain about Pony language \cite{ponylang} through description of features and performance, sample codes, and reference capability type system, which is the key concept of this language.
+Here, I explain about Pony language \cite{ponylang} through descriptions of features, performance, sample codes, and reference capability type system.
 
 \subsection{Why I chose Pony}
 This is really boring reason. I just seek "200 minor programming language list"\cite{200}, and I found this.  
@@ -60,28 +60,28 @@ This is really boring reason. I just seek "200 minor programming language list"\
 \subsection{Simple introduction from official page \cite{ponylang}}
 Pony is an open-source, object-oriented, actor-model, capabilities-secure, high-performance programming language. 
 
-Type safe. Really type safe. On top page, there is a link for mathematical proof paper \cite{type-proof-paper}. I will explain about that in later section.
+Pony is type safe. Really type safe. On top page, there is a link for mathematical proof paper \cite{type-proof-paper}. I will explain about that in later section.
 
-Memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of \texttt{null}. 
+Pony is memory safe. There are no dangling pointers and no buffer overruns. The language doesn't even have the concept of \texttt{null}. 
 
-Exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. 
+Pony is exception-Safe. There are no runtime exceptions. All exceptions have defined semantics, and they are always caught. 
 
-Data-race Free. Pony doesn’t have locks nor atomic operations or anything like that. Instead, the type system ensures at compile time that your concurrent program can never have data races. So you can write highly concurrent code and never get it wrong. 
+Pony is data-race free. Pony doesn't have locks nor atomic operations or anything like that. Instead, the type system ensures at compile time that your concurrent program can never have data races. So you can write highly concurrent code and never get it wrong. 
 
-Deadlock-Free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don’t exist.
+Pony is deadlock-free. This one is easy because Pony has no locks at all. So they definitely don’t deadlock, because they don't exist.
 
 \subsection{Example Code}
 
 \lstinputlisting{timer.pony}
 
 Here is timer program in Pony.
-At first sleeps for 5 seconds, and after that, repeat to run Notify.apply method in every 2 seconds.
+At first sleeps for 5 seconds. After that, repeat to run Notify.apply method in every 2 seconds.
 
 There are \texttt{Main} actor and \texttt{Notify} class. 
 \texttt{Main} actor has \texttt{new create} symbol, which works as constructor.
-\texttt{Notify} class has \texttt{ \_env}, \texttt{ \_counter} fields, \texttt{create} constructor, and \texttt{apply} method.
+\texttt{Notify} class has \texttt{ \_env}, \texttt{\_counter} fields, \texttt{create} constructor, and \texttt{apply} method.
 
-First, \texttt{Main} actor ' \texttt{create} constructor is called. It is initial function as same as \texttt{int main()} in C or \texttt{public static void main(String[] args)} in Java. 
+First, \texttt{Main} actor's \texttt{create} constructor is called. It is initial function as same as \texttt{int main()} in C or \texttt{public static void main(String[] args)} in Java. 
 
 Values are assigned into \texttt{timers} and \texttt{timer}, and then \texttt{Timers.apply} method is called. 
 At here, \texttt{Timers} is another actor, so we have to move \texttt{timer} data to the actor by \texttt{consume} expression.
@@ -105,7 +105,7 @@ end
 GenServer.start_link(Actor1, [:call])
 \end{lstlisting}
 
-To use actor, Elixir\cite{elixir} have to define module, and make actor by specifying both module name and method name.
+To use actor, Elixir have to define module, and make actor by specifying both module name and method name.
 
 \begin{lstlisting}{Make actor in Pony}
 actor Actor1
@@ -133,9 +133,9 @@ let b = consume a
 // You can't use a at here anymore.
 \end{lstlisting}
 
-Pony has much more stronger reference capability type system than Rust \cite{rust} 's ownership type system. 
+Pony has much more stronger reference capability system than Rust's ownership system. 
 
-At here, \texttt{iso} is one of reference capability types, which mean "this value is readable in writable in one actor, and it can move to another actor".
+At here, \texttt{iso} is one of reference capability types, which mean "this value is readable and writable in one actor, and it can move to another actor".
 
 About reference capability, I will explain about it in later section.
 \\
@@ -155,7 +155,7 @@ class A
 \end{lstlisting}
 
 
-Pony uses indentation as block as same as Python\cite{python}.\\
+Pony uses indentation as block as same as Python.\\
 
 \begin{lstlisting}[language=Ruby]{do end block style both in Ruby and Pony }
 for i in values do
@@ -163,7 +163,7 @@ for i in values do
 end		
 \end{lstlisting}
 
- Pony uses do$\sim$end style block as same as Ruby \cite{ruby}. \\
+ Pony uses do$\sim$end style block as same as Ruby. \\
 
 
 \begin{lstlisting}[language=Java]{Type parameter and apply method in Scala}
@@ -184,7 +184,7 @@ let a: A[Integer] = A
 a(8)	
 \end{lstlisting}
 
-Pony uses square brackets([T]) for Generics, and functional style \texttt{apply} method as same as Scala\cite{scala}. \\
+Pony uses square brackets([T]) for Generics, and functional programming style \texttt{apply} method as same as Scala. \\
 
 
 \begin{lstlisting}{interface in Go}
@@ -217,17 +217,17 @@ class Dog
 	
 // Now type Dog implements Animal interface.
 // You can annotate Dog implements Animal by 
-// class Dog is Animal
+// `class Dog is Animal`
 \end{lstlisting}
  
-Pony has structural subtyping as same as Go\cite{go}.
+Pony has structural subtyping as same as Go. \\
 
 
 \begin{table*}[]
 \centering
 \begin{tabular}{lllll}
 \hline
-                          & Pony & Scala & Elixir & Rust \\ \hline \hline
+                          & Pony & Scala(Akka) & Elixir & Rust \\ \hline \hline
 Zero-Copy                 & $\checkmark$ & $\checkmark$& &  $\checkmark$    \\ \hline
 Data-race free            & $\checkmark$ &       & $\checkmark$& $\checkmark$ \\ \hline
 Statically data-race free & $\checkmark$ &       &        &      \\ \hline
@@ -238,11 +238,14 @@ Immutability (val)        &$\checkmark$&       & $\checkmark$& $\checkmark$\\ \h
 Identity (tag)            &$\checkmark$&       &        &      \\ \hline
 Actors                    &$\checkmark$& $\checkmark$ & $\checkmark$&      \\ \hline
 Formal proof              &$\checkmark$&       &        &      \\ \hline
+Concurrent GC          & &       &   $\checkmark$     &      \\ \hline
 \end{tabular}
 \caption{Feature comparison.\cite{type-proof-paper}}
 \end{table*}
 
-Table 1 is summary of some parallarel features of Pony and compare with Scala, Elixir, and Rust.
+
+About parallel processing programming, Pony has variety of variable types and strong type system for actor model.
+Table 1 is summary of some parallel processing programming features of Pony and compare with Scala, Elixir, and Rust.
 
 \subsection{Performance}
 
@@ -415,32 +418,7 @@ Pony language official page
 
 \bibitem{type-proof-paper}
 Deny Capabilities for Safe, Fast Actors
-\\\texttt{https://www.ponylang.io/media/papers/fast-cheap-with-proof.pdf}
-
-\bibitem{elixir}
-Elixir language official page
-\\\texttt{https://elixir-lang.org}
-
-\bibitem{rust}
-Rust language official page
-\\\texttt{https://www.rust-lang.org}
-
-\bibitem{python}
-Python language official page
-\\\texttt{https://www.python.org}
-
-\bibitem{ruby}
-Ruby language official page
-\\\texttt{https://www.ruby-lang.org/en/}
-	
-\bibitem{scala}
-Scala language official page
-\\\texttt{https://www.scala-lang.org}
-
-\bibitem{go}
-Go language official page
-\\\texttt{https://golang.org}
-	
+\\\texttt{https://www.ponylang.io/media/papers/fast-cheap-with-proof.pdf}	
 
 \bibitem{200}
 200 minor programming language
